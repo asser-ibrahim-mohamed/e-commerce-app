@@ -1,6 +1,11 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import Navbar from "./_components/Navbar/Navbar";
+import Footer from "./_components/Footer/Footer";
+import { Toaster } from "react-hot-toast";
+import NextauthProviider from "./providers/nextauthProvider";
+import Providers from "./providers/react-query-provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -22,13 +27,29 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        {children}
-      </body>
-    </html>
-  );
+ return (
+  <html lang="en">
+
+    <body 
+      className={`${geistSans.variable} ${geistMono.variable} antialiased`} 
+      suppressHydrationWarning
+    >
+      <Providers>
+
+    <NextauthProviider>
+    <Navbar/>
+      <div className="container mx-auto  min-h-screen  mt-12 px-3">
+        <Toaster/>
+       
+        {children} 
+      </div>
+   <Footer/>
+    </NextauthProviider>
+      </Providers>
+
+     
+  
+    </body>
+  </html>
+);
 }
