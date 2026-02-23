@@ -3,7 +3,11 @@ import getAccessToken from "@/schema/access-token";
 
 export async function addReview(productId: string, rating: number, reviewText: string) {
   const token = await getAccessToken();
-  if (!token) throw new Error('You must be logged in to review');
+
+  
+  if (!token) {
+    return { success: false, message: 'Login first' };
+  }
 
   const resp = await fetch(`https://ecommerce.routemisr.com/api/v1/products/${productId}/reviews`, {
     method: 'POST',
@@ -20,15 +24,12 @@ export async function addReview(productId: string, rating: number, reviewText: s
   const data = await resp.json();
 
   if (!resp.ok) {
-   
     let errorMessage = data.errors?.msg || data.message;
-    
     if (errorMessage === 'fail' || !errorMessage) {
       errorMessage = 'You made a comment before';
     }
-    
-    throw new Error(errorMessage);
+    return { success: false, message: errorMessage };
   }
 
-  return data;
+  return { success: true, data };
 }

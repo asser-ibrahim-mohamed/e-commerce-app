@@ -1,39 +1,55 @@
 'use client'
+
 import { Button } from '@/components/ui/button'
 import { CardFooter } from '@/components/ui/card'
 import { Heart, Loader2, ShoppingCartIcon } from 'lucide-react'
 import React from 'react'
 import toast from 'react-hot-toast'
 import { useRouter } from 'next/navigation'
-
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { addToCart } from '@/service/cart/add-product-cart'
 import { addToWishlist } from '@/service/wishlist/add-to-wishlist'
-
 import { getWishlist } from '@/service/wishlist/get-wishlist'
 import { removeFromWishlist } from '@/service/cart/remove-from-wishlist'
+import { ProductsData } from '@/Interfaces/ProductInterface'
 
-export default function AddToCart({ productId }: { productId: string }) {
+interface AddToCartProps {
+  productId: string;
+  wishlistData?: any; 
+}
+
+export default function AddToCart({ productId, wishlistData: wishlistDataProp }: AddToCartProps) {
   const queryClient = useQueryClient()
   const router = useRouter()
 
-  
-  const { data: wishlistData } = useQuery({
+  const { data: internalWishlistData } = useQuery({
     queryKey: ['get-wishlist'],
     queryFn: getWishlist,
+    enabled: !wishlistDataProp, 
   })
 
- 
-  const isHeartFilled = wishlistData?.some((item: any) => item._id === productId || item.id === productId) || false;
 
+  const getWishlistArray = () => {
+    const rawData = wishlistDataProp || internalWishlistData;
+    if (Array.isArray(rawData)) return rawData;
+    if (rawData?.success && Array.isArray(rawData.data)) return rawData.data;
+    if (Array.isArray(rawData?.data)) return rawData.data;
+    return [];
+  };
+
+  const currentWishlist = getWishlistArray();
   
+  const isHeartFilled = currentWishlist.some((item: any) => 
+    (item._id || item.id || item.product?.id || item.product?._id) === productId
+  );
+
   const { isPending: cartPending, mutate: addProductToCart } = useMutation({
     mutationFn: addToCart,
     onSuccess: (data) => {
       toast.success(data?.message || 'Product added successfully')
       queryClient.invalidateQueries({ queryKey: ['get-cart'] })
     },
-    onError: () => {
+    onError: (error: any) => {
       toast.error('Login First!')
       router.push('/signin')
     }
@@ -43,7 +59,6 @@ export default function AddToCart({ productId }: { productId: string }) {
     mutationFn: addToWishlist,
     onSuccess: (data) => {
       toast.success(data?.message || 'Added to Wishlist')
-   
       queryClient.invalidateQueries({ queryKey: ['get-wishlist'] })
     },
     onError: () => {
@@ -52,12 +67,10 @@ export default function AddToCart({ productId }: { productId: string }) {
     }
   })
 
- 
   const { isPending: wishRemovePending, mutate: removeProductFromWishlist } = useMutation({
     mutationFn: removeFromWishlist,
     onSuccess: (data) => {
       toast.success(data?.message || 'Removed from Wishlist')
-   
       queryClient.invalidateQueries({ queryKey: ['get-wishlist'] })
     },
     onError: () => {
@@ -65,10 +78,8 @@ export default function AddToCart({ productId }: { productId: string }) {
     }
   })
 
-
   const isWishlistLoading = wishAddPending || wishRemovePending;
 
- 
   const toggleWishlist = (e: React.MouseEvent) => {
     e.preventDefault(); 
     if (isHeartFilled) {
@@ -79,20 +90,21 @@ export default function AddToCart({ productId }: { productId: string }) {
   }
 
   return (
-    <CardFooter>
+    <CardFooter className="p-3 lg:p-0">
       <Button 
         onClick={() => addProductToCart(productId)} 
         disabled={cartPending} 
-        className='grow'
+        className='grow rounded-xl'
       >
-        {cartPending ? <Loader2 className='animate-spin mr-2' /> : <ShoppingCartIcon className='mr-2' />}
+        {cartPending ? <Loader2 className='animate-spin mr-2 w-4 h-4' /> : <ShoppingCartIcon className='mr-2 w-4 h-4' />}
         Add to cart
       </Button> 
-     
+      
       <button 
         onClick={toggleWishlist} 
         disabled={isWishlistLoading}
-        className="ms-3 focus:outline-none disabled:opacity-50"
+        type="button"
+        className="ms-3 focus:outline-none disabled:opacity-50 transition-transform active:scale-90"
       >
         {isWishlistLoading ? (
           <Loader2 className="animate-spin text-red-500 w-6 h-6" />

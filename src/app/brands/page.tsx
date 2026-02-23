@@ -26,7 +26,7 @@ export default async function Brands() {
     }
   const { data }: BrandsResponse = await response.json()
   return <>
-  <div className="pt-10 px-10">
+  <div className="py-10 px-10">
    {data ? <div className="  mx-auto mt-4 px-4">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {data.map((brand) => (<div key={brand._id} className=" ">
