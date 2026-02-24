@@ -9,8 +9,7 @@ export default async function proxy(req: NextRequest) {
     const token = await getToken({ req })
     const { pathname, origin } = req.nextUrl
 
-  
-    if (protectedRoutes.some(route => pathname.startsWith(route))) {
+ if (protectedRoutes.some(route => pathname.startsWith(route))) {
         if (token) {
             return NextResponse.next()
         } else {

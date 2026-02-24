@@ -4,9 +4,8 @@ import "./globals.css";
 import Navbar from "./_components/Navbar/Navbar";
 import Footer from "./_components/Footer/Footer";
 import { Toaster } from "react-hot-toast";
-
 import Providers from "./providers/react-query-provider";
-import NextauthProviider from "./providers/nextauthProvider";
+import NextauthProvider from "./providers/NextauthProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -28,7 +27,7 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
- return (
+return (
   <html lang="en">
 
     <body 
@@ -37,15 +36,15 @@ export default function RootLayout({
     >
       <Providers>
 
-    <NextauthProviider>
+    <NextauthProvider>
     <Navbar/>
-      <div className="container mx-auto  min-h-screen  mt-12 px-3">
+      <div className="container mx-auto  min-h-screen  mt-12 p-3">
         <Toaster/>
        
         {children} 
       </div>
    <Footer/>
-    </NextauthProviider>
+    </NextauthProvider>
       </Providers>
 
      
