@@ -1,3 +1,4 @@
+'use server'
 import getAccessToken from "@/schema/access-token";
 
 export async function getWishlist() {

@@ -11,7 +11,7 @@ import { addToCart } from '@/service/cart/add-product-cart'
 import { addToWishlist } from '@/service/wishlist/add-to-wishlist'
 import { getWishlist } from '@/service/wishlist/get-wishlist'
 import { removeFromWishlist } from '@/service/cart/remove-from-wishlist'
-import { ProductsData } from '@/Interfaces/ProductInterface'
+
 
 interface AddToCartProps {
   productId: string;
@@ -53,7 +53,7 @@ export default function AddToCart({ productId, wishlistData: wishlistDataProp }:
       toast.success(data?.message || 'Product added successfully')
       queryClient.invalidateQueries({ queryKey: ['get-cart'] })
     },
-    onError: (error: any) => {
+    onError: () => {
       toast.error('Login First!')
       router.push('/signin')
     }
@@ -61,19 +61,23 @@ export default function AddToCart({ productId, wishlistData: wishlistDataProp }:
 
   const { isPending: wishAddPending, mutate: addProductToWishlist } = useMutation({
     mutationFn: addToWishlist,
-    onSuccess: (data) => {
+    onSuccess: (data: any) => {
+      if (data?.success === false) {
+        toast.error(data.message || 'Login First!')
+        if (data.message === 'Login first') router.push('/signin')
+        return
+      }
       toast.success(data?.message || 'Added to Wishlist')
       queryClient.invalidateQueries({ queryKey: ['get-wishlist'] })
     },
     onError: () => {
-      toast.error('Login First to add to wishlist!')
-      router.push('/signin')
+      toast.error('Something went wrong!')
     }
   })
 
   const { isPending: wishRemovePending, mutate: removeProductFromWishlist } = useMutation({
     mutationFn: removeFromWishlist,
-    onSuccess: (data) => {
+    onSuccess: (data: any) => {
       toast.success(data?.message || 'Removed from Wishlist')
       queryClient.invalidateQueries({ queryKey: ['get-wishlist'] })
     },
