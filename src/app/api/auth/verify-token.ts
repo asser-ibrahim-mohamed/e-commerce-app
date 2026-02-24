@@ -19,7 +19,6 @@ export async function getCurrentUserId() {
 
     const data = await resp.json();
     
-    
     return data.decoded?.id || data.decoded?._id || null;
     
   } catch (error) {

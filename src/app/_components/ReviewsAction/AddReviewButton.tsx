@@ -37,6 +37,11 @@ export default function AddReviewButton({ productId }: { productId: string }) {
         setTimeout(() => router.push('/signin'), 1000)
         return
       }
+      if (data?.message === 'You already added review on this product') {
+        toast.error(data?.message)
+        setIsOpen(false)
+        return
+      }
 
       toast.success('Review added successfully!')
       setIsOpen(false)
