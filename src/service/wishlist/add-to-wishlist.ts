@@ -5,23 +5,29 @@ export async function addToWishlist(productId: string) {
   const token = await getAccessToken();
 
   if (!token) {
-    throw new Error('You must be logged in to add to wishlist');
+    return { success: false, message: 'Login first' };
   }
 
-  const resp = await fetch('https://ecommerce.routemisr.com/api/v1/wishlist', {
-    method: 'POST',
-    headers: {
-      'token': token,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      productId: productId
-    })
-  });
+  try {
+    const resp = await fetch('https://ecommerce.routemisr.com/api/v1/wishlist', {
+      method: 'POST',
+      headers: {
+        'token': token,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        productId: productId
+      })
+    });
 
-  if (!resp.ok) {
-    throw new Error('Failed to add to wishlist');
+    const data = await resp.json();
+
+    if (!resp.ok) {
+      return { success: false, message: data.message || 'Failed to add to wishlist' };
+    }
+
+    return { success: true, data };
+  } catch (error) {
+    return { success: false, message: 'Server connection failed' };
   }
-
-  return await resp.json();
 }

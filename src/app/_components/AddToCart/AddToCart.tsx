@@ -28,7 +28,6 @@ export default function AddToCart({ productId, wishlistData: wishlistDataProp }:
     enabled: !wishlistDataProp, 
   })
 
-
   const getWishlistArray = () => {
     const rawData = wishlistDataProp || internalWishlistData;
     if (Array.isArray(rawData)) return rawData;
@@ -46,6 +45,11 @@ export default function AddToCart({ productId, wishlistData: wishlistDataProp }:
   const { isPending: cartPending, mutate: addProductToCart } = useMutation({
     mutationFn: addToCart,
     onSuccess: (data) => {
+      if (data?.statusMsg === 'fail' || data?.message === 'unauthorized...') {
+        toast.error(data?.message === 'unauthorized...' ? 'Login First!' : (data?.message || 'Failed to add product'))
+        if (data?.message === 'unauthorized...') router.push('/signin')
+        return
+      }
       toast.success(data?.message || 'Product added successfully')
       queryClient.invalidateQueries({ queryKey: ['get-cart'] })
     },
